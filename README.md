@@ -33,7 +33,7 @@ DATABASE_URL=your_postgresql_database_url
 
 ```bash
 git clone https://github.com/your-username/steel-bot.git
-cd steel-bot
+cd steel-bot/api
 ```
 
 2. Install dependencies:
@@ -84,10 +84,10 @@ npm start
 
 ## Project Structure
 
-- `src/index.ts` - Main application entry point
-- `src/lib/` - Core utilities (Discord client, GitHub integration)
-- `src/services/` - Business logic services
-- `src/modules/` - Route handlers and API endpoints
+- `api/src/index.ts` - Main application entry point
+- `api/src/lib/` - Core utilities (Discord client, GitHub integration)
+- `api/src/services/` - Business logic services
+- `api/src/modules/` - Route handlers and API endpoints
 
 ## License
 
