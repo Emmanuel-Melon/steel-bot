@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import { Message } from "discord.js";
-
-const prisma = new PrismaClient();
+import { TARGET_CHANNELS } from "./constants";
+import { prisma } from "../lib/prisma";
 
 interface Pattern {
   type: "QUESTION" | "FEATURE_REQUEST" | "FEEDBACK";
@@ -96,6 +95,13 @@ export function determineMessageType(
 
 export class MessageService {
   async saveMessage(message: Message) {
+    // if (
+    //     message.author.bot ||
+    //     message.system ||
+    //     !TARGET_CHANNELS.has(message.channelId)
+    // )
+    //     return;
+
     const messageType = determineMessageType(message.content);
 
     return await prisma.message.create({
@@ -128,6 +134,14 @@ export class MessageService {
         createdAt: "desc",
       },
       take: limit,
+    });
+  }
+
+  async getMessageById(id: string) {
+    return await prisma.message.findUnique({
+      where: {
+        id: id,
+      },
     });
   }
 }

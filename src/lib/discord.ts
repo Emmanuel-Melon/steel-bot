@@ -1,4 +1,4 @@
-import { Client, IntentsBitField } from "discord.js";
+import { Client, Message, IntentsBitField } from "discord.js";
 
 export const createDiscordClient = () => {
   const discord = new Client({
