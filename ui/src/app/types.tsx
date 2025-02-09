@@ -10,6 +10,7 @@ export interface FeedbackItem {
   votes: number
   createdAt: string
   githubIssue?: string
+  githubPR?: string
   tags: string[]
 }
 

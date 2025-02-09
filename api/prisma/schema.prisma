@@ -13,9 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Column {
+  id          String      @id @default(cuid())
+  channelId   String      @unique
+  title       String
+  type        MessageType @default(QUESTION)
+  messages    Message[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
 model Message {
   id          String      @id @default(cuid())
   channelId   String
+  column      Column      @relation(fields: [channelId], references: [channelId])
   authorId    String
   content     String
   messageId   String      @unique

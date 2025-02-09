@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Message {
+  id         String      @id
+  channelId  String
+  authorId   String
+  content    String
+  messageId  String      @unique
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime
+  type       MessageType @default(QUESTION)
+  categories String[]
+  resolved   Boolean     @default(false)
+  solution   String?
+  Column     Column      @relation(fields: [channelId], references: [channelId])
+}
+
+model Column {
+  id        String      @id
+  channelId String      @unique
+  title     String
+  type      MessageType @default(QUESTION)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime
+  Message   Message[]
+}
+
+enum MessageType {
+  QUESTION
+  FEEDBACK
+  FEATURE_REQUEST
+}

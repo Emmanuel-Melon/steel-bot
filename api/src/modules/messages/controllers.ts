@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { MessageService } from "../services/message.service";
+import { MessageService } from "../../services/message.service";
 
 const messageService = new MessageService();
 

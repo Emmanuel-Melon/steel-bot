@@ -1,4 +1,4 @@
-import type { Column, FeedbackItem } from "./types"
+import type { Column, FeedbackItem } from "../types/feedback"
 
 const feedbackItems: FeedbackItem[] = [
   {
@@ -9,7 +9,8 @@ const feedbackItems: FeedbackItem[] = [
     status: "in-progress",
     votes: 42,
     createdAt: "2024-02-01",
-    githubIssue: "steel-dev/feedback#123",
+    githubIssue: "https://github.com/steel-dev/feedback/issues/123",
+    githubPR: "https://github.com/steel-dev/feedback/pull/125",
     tags: ["ui", "theme"],
   },
   {

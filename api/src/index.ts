@@ -2,10 +2,21 @@ import fastify from "fastify";
 import { Message } from "discord.js";
 import { createDiscordClient } from "./lib/discord";
 import { MessageService } from "./services/message.service";
-import routes from "./modules/router";
+import messagesRoutes from "./modules/messages/router";
+import columnsRoutes from "./modules/columns/columns.router";
 import { createGitHubIssue } from "./lib/github";
+import cors from '@fastify/cors';
 
 const server = fastify({ logger: true });
+
+// Register CORS
+server.register(cors, {
+  origin: true, // Allow all origins
+  methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+});
+
 const discord = createDiscordClient();
 const messageService = new MessageService();
 
@@ -47,12 +58,13 @@ discord.on("messageCreate", async (message: Message) => {
   }
 });
 
-routes(server);
+messagesRoutes(server);
+columnsRoutes(server);
 
 const start = async () => {
   try {
     await discord.login(process.env.DISCORD_TOKEN);
-    await server.listen({ port: 3000 });
+    await server.listen({ port: 8000 });
   } catch (err) {
     server.log.error(err);
     process.exit(1);

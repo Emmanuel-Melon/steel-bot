@@ -1,60 +1,54 @@
-import { Github, Plus } from "lucide-react"
+"use client";
+import { Github } from "lucide-react"
 import Link from "next/link"
-import { columns } from "./data"
-import { FeedbackCard } from "@/app/components/feedback-card"
 import { Toolbar } from "@/app/components/toolbar"
+import { FeedbackColumns } from "@/app/components/feedback-columns"
+import { useColumns } from "@/app/hooks/use-columns"
+
 
 export default function Page() {
+  const { data: columns, isLoading } = useColumns();
+
   return (
     <div className="min-h-screen bg-[#121212] text-white">
-      {/* Navigation */}
-      <nav className="flex items-center justify-between p-4 bg-[#1C1C1C] border-b border-gray-800">
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-blue-500 rounded"></div>
-          <span className="font-mono">steel.feedback</span>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Link
-            href="#"
-            className="flex items-center space-x-2 text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            <Github className="w-5 h-5" />
-            <span>Github Repo</span>
-          </Link>
-          <Link
-            href="#"
-            className="flex items-center space-x-2 text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            <span>New Feedback</span>
-          </Link>
-        </div>
-      </nav>
-
-      {/* Toolbar */}
-      <Toolbar />
-
-      {/* Main Content */}
-      <main className="p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {columns.map((column) => (
-              <div key={column.id} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-white">{column.title}</h2>
-                  <span className="text-sm text-gray-400">{column.items.length}</span>
-                </div>
-                <div className="space-y-4">
-                  {column.items.map((item) => (
-                    <FeedbackCard key={item.id} item={item} />
-                  ))}
+      <nav className="bg-[#1C1C1C] border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <div className="hidden md:block">
+                <div className="ml-4 flex items-baseline space-x-4">
+                  <span className="font-mono text-white px-3 py-2 rounded-md text-sm font-medium">steel.feedback</span>
                 </div>
               </div>
-            ))}
+            </div>
+            <div className="hidden md:block">
+              <div className="ml-4 flex items-center md:ml-6">
+                <Link
+                  href="https://github.com/steel-dev/feedback"
+                  className="flex items-center space-x-2 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  <Github className="w-5 h-5" />
+                  <span>Github Repo</span>
+                </Link>
+              </div>
+            </div>
+            <div className="md:hidden">
+              <Link
+                href="https://github.com/steel-dev/feedback"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <Github className="w-6 h-6" />
+              </Link>
+            </div>
           </div>
+        </div>
+      </nav>
+      <Toolbar />
+      <main className="p-6">
+        <div className="max-w-7xl mx-auto">
+          <FeedbackColumns columns={columns} isLoading={isLoading} />
         </div>
       </main>
     </div>
   )
 }
-
