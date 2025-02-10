@@ -6,9 +6,9 @@ const REPO_OWNER = process.env.REPO_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`;
 
-export const createGitHubIssue = async (message: Message) => {
+export const createGitHubIssue = async (message: Message, label?: string) => {
   try {
-    console.log("Creating GitHub issue", message);
+    console.log("Creating GitHub issue", { message, label });
 
     // Format the issue body
     const issueBody = `
@@ -18,31 +18,28 @@ export const createGitHubIssue = async (message: Message) => {
 ${message.content}  
 
 ---
-
-**Further Discussion:**  
-[Join the Discord server](https://discord.gg/your-invite-link)  
-[View the original message](https://discord.com/channels/your-server-id/${message.channelId}/${message.messageId})
-        `;
+*Created from Discord message*
+`;
 
     const response = await axios.post(
       API_URL,
       {
-        title: `[${message.type}] ${message.content.substring(0, 50)}`,
+        title: message.content.substring(0, 100),
         body: issueBody,
-        labels: [message.type.toLowerCase()],
+        labels: label ? [label] : [],
       },
       {
         headers: {
           Authorization: `token ${GITHUB_TOKEN}`,
-          "Content-Type": "application/json",
+          Accept: "application/vnd.github.v3+json",
         },
       },
     );
 
-    console.log("GitHub Response", response);
+    console.log("GitHub issue created:", response.data.html_url);
     return response.data;
   } catch (error) {
-    console.error("Failed to create GitHub issue:", error);
+    console.error("Error creating GitHub issue:", error);
     throw error;
   }
 };

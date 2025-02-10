@@ -144,4 +144,12 @@ export class MessageService {
       },
     });
   }
+
+  async getReactedForMessage(messageId: string) {
+    return await prisma.message.findFirst({
+      where: {
+        messageId: messageId,
+      },
+    });
+  }
 }

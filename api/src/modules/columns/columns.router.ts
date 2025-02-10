@@ -13,8 +13,8 @@ const Column = {
     createdAt: { type: "string", format: "date-time" },
     messages: {
       type: "array",
-      items: { type: "object" }
-    }
+      items: { type: "object" },
+    },
   },
 } as const;
 
@@ -31,9 +31,9 @@ const GetColumnsResponse = {
   500: {
     type: "object",
     properties: {
-      error: { type: "string" }
-    }
-  }
+      error: { type: "string" },
+    },
+  },
 } as const;
 
 function routes(server: FastifyInstance) {
@@ -45,7 +45,7 @@ function routes(server: FastifyInstance) {
         response: GetColumnsResponse,
       },
     },
-    columnController.getColumns
+    columnController.getColumns,
   );
 
   server.post(
@@ -56,7 +56,7 @@ function routes(server: FastifyInstance) {
         response: GetColumnsResponse,
       },
     },
-    columnController.initializeColumns
+    columnController.initializeColumns,
   );
 }
 

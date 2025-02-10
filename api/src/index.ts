@@ -1,62 +1,27 @@
 import fastify from "fastify";
-import { Message } from "discord.js";
 import { createDiscordClient } from "./lib/discord";
 import { MessageService } from "./services/message.service";
+import { DiscordService } from "./services/discord.service";
 import messagesRoutes from "./modules/messages/router";
 import columnsRoutes from "./modules/columns/columns.router";
 import { createGitHubIssue } from "./lib/github";
-import cors from '@fastify/cors';
+import cors from "@fastify/cors";
 
 const server = fastify({ logger: true });
 
-// Register CORS
 server.register(cors, {
   origin: true, // Allow all origins
-  methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 });
 
 const discord = createDiscordClient();
 const messageService = new MessageService();
+const discordService = new DiscordService(discord);
 
-type PartialMessage = Message & {
-  partial: boolean;
-};
-
-discord.on("ready", () => {
-  server.log.info("Discord bot is ready!");
-});
-
-discord.on("messageCreate", async (message: Message) => {
-  // if (message.author.bot || message.system) return;
-  try {
-    const savedMessage = await messageService.saveMessage(message);
-    server.log.info({
-      event: "message_logged",
-      messageId: savedMessage?.id,
-      channel: message.channel.id,
-      author: message.author.tag,
-      content:
-        message.content.substring(0, 50) +
-        (message.content.length > 50 ? "..." : ""),
-    });
-    const dbMessage = await messageService.getMessageById(
-      savedMessage?.id as string,
-    );
-
-    if (dbMessage) {
-      await createGitHubIssue(dbMessage);
-    } else {
-      server.log.error(
-        "Failed to create GitHub issue: Message not found in database",
-      );
-    }
-  } catch (error) {
-    console.log(error);
-    server.log.error("Failed to save message:", error);
-  }
-});
+// Initialize Discord event handlers
+discordService.initialize();
 
 messagesRoutes(server);
 columnsRoutes(server);

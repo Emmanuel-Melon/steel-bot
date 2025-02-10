@@ -1,4 +1,4 @@
-import { Client, Message, IntentsBitField } from "discord.js";
+import { Client, Message, IntentsBitField, Partials } from "discord.js";
 
 export const createDiscordClient = () => {
   const discord = new Client({
@@ -6,6 +6,13 @@ export const createDiscordClient = () => {
       IntentsBitField.Flags.Guilds,
       IntentsBitField.Flags.GuildMessages,
       IntentsBitField.Flags.MessageContent,
+      IntentsBitField.Flags.GuildMessageReactions,
+    ],
+    partials: [
+      Partials.Message,
+      Partials.Channel,
+      Partials.Reaction,
+      Partials.User,
     ],
   });
 

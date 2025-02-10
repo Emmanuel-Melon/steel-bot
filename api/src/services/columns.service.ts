@@ -19,18 +19,19 @@ export class ColumnService {
 
   async initializeColumns() {
     try {
-      const columns: { channelId: string; title: string; type: MessageType }[] = [
-        {
-          channelId: process.env.FEEDBACK_CHANNEL_ID!,
-          title: "Feedback",
-          type: MessageType.FEEDBACK,
-        },
-        {
-          channelId: process.env.GITHUB_CHANNEL_ID!,
-          title: "GitHub",
-          type: MessageType.QUESTION,
-        },
-      ];
+      const columns: { channelId: string; title: string; type: MessageType }[] =
+        [
+          {
+            channelId: process.env.FEEDBACK_CHANNEL_ID!,
+            title: "Feedback",
+            type: MessageType.FEEDBACK,
+          },
+          {
+            channelId: process.env.GITHUB_CHANNEL_ID!,
+            title: "GitHub",
+            type: MessageType.QUESTION,
+          },
+        ];
 
       return await Promise.all(
         columns.map(async (column) => {
@@ -39,7 +40,7 @@ export class ColumnService {
             update: {},
             create: column,
           });
-        })
+        }),
       );
     } catch (error) {
       throw error;
