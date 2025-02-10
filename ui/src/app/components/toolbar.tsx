@@ -1,5 +1,7 @@
-import { Button } from "@/components/ui/button" 
-import { MessageSquare, AlertCircle, Star } from "lucide-react"
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { MessageSquare, AlertCircle, Star, HelpCircle, Map } from "lucide-react"
 import Link from "next/link"
 
 export function Toolbar() {
@@ -30,15 +32,31 @@ export function Toolbar() {
             </svg>
             <span className="hidden sm:inline">Discord</span>
           </Link>
+          <Link
+            href="/roadmap"
+            className="flex items-center space-x-2 text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            <Map className="w-5 h-5" />
+            <span className="hidden sm:inline">Roadmap</span>
+          </Link>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-gray-800 text-white border-gray-700 hover:bg-gray-700 hover:text-white"
-        >
-          <Star className="w-4 h-4 mr-2" />
-          Star Repo
-        </Button>
+        <div className="flex items-center space-x-4">
+          <Link
+            href="/how-to-use"
+            className="flex items-center space-x-2 text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            <HelpCircle className="w-5 h-5" />
+            <span className="hidden sm:inline">How to Use</span>
+          </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-gray-800 text-white border-gray-700 hover:bg-gray-700 hover:text-white"
+          >
+            <Star className="w-4 h-4 mr-2" />
+            Star Repo
+          </Button>
+        </div>
       </div>
     </div>
   )

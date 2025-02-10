@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,29 +10,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Server {
+  id        String    @id
+  name      String
+  channels  Channel[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Channel {
+  id        String    @id
+  serverId   String
+  server     Server     @relation(fields: [serverId], references: [id])
+  name      String
+  columns   Column[]
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 model Column {
-  id          String      @id @default(cuid())
-  channelId   String      @unique
-  title       String
-  type        MessageType @default(QUESTION)
-  messages    Message[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id        String      @id @default(cuid())
+  channelId String
+  channel   Channel     @relation(fields: [channelId], references: [id])
+  title     String
+  type      MessageType @default(QUESTION)
+  messages  Message[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 model Message {
-  id          String      @id @default(cuid())
-  channelId   String
-  column      Column      @relation(fields: [channelId], references: [channelId])
-  authorId    String
-  content     String
-  messageId   String      @unique
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  type        MessageType @default(QUESTION)
-  categories  String[]
-  resolved    Boolean     @default(false)
-  solution    String?
+  id        String      @id
+  channelId String
+  channel   Channel     @relation(fields: [channelId], references: [id])
+  columnId  String
+  column    Column      @relation(fields: [columnId], references: [id])
+  authorId  String
+  content   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  type      MessageType @default(QUESTION)
+  categories String[]
+  resolved  Boolean     @default(false)
+  solution  String?
+  reactions Reaction[]
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id])
+  emoji     String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([messageId, emoji, userId])
+}
+
+model User {
+  id         String   @id
+  username   String
+  globalName String?
+  avatar     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 enum MessageType {
@@ -43,3 +83,4 @@ enum MessageType {
   FEEDBACK
   FEATURE_REQUEST
 }
+
