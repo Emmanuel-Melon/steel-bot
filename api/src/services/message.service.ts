@@ -1,5 +1,4 @@
 import { Message } from "discord.js";
-import { TARGET_CHANNELS } from "./constants";
 import { prisma } from "../lib/prisma";
 
 interface Pattern {
@@ -95,19 +94,55 @@ export function determineMessageType(
 
 export class MessageService {
   async saveMessage(message: Message) {
-    // if (
-    //     message.author.bot ||
-    //     message.system ||
-    //     !TARGET_CHANNELS.has(message.channelId)
-    // )
-    //     return;
-
     const messageType = determineMessageType(message.content);
+
+    // Ensure channel exists
+    let channel = await prisma.channel.findUnique({
+      where: { id: message.channelId }
+    });
+
+    if (!channel) {
+      // Create the channel if it doesn't exist
+      channel = await prisma.channel.create({
+        data: {
+          id: message.channelId,
+          name: message.channel.name,
+          server: {
+            connectOrCreate: {
+              where: { id: message.guildId! },
+              create: {
+                id: message.guildId!,
+                name: message.guild?.name || 'Unknown Server'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Find or create a column for this message type
+    let column = await prisma.column.findFirst({
+      where: {
+        channelId: channel.id,
+        type: messageType,
+      },
+    });
+
+    if (!column) {
+      column = await prisma.column.create({
+        data: {
+          channelId: channel.id,
+          title: messageType.toLowerCase(),
+          type: messageType,
+        },
+      });
+    }
 
     return await prisma.message.create({
       data: {
-        messageId: message.id,
-        channelId: message.channelId,
+        id: message.id,
+        channelId: channel.id,
+        columnId: column.id,
         authorId: message.author.id,
         content: message.content,
         type: messageType,
@@ -148,7 +183,7 @@ export class MessageService {
   async getReactedForMessage(messageId: string) {
     return await prisma.message.findFirst({
       where: {
-        messageId: messageId,
+        id: messageId,
       },
     });
   }

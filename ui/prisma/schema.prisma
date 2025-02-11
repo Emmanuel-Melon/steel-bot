@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,29 +10,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Message {
-  id         String      @id
-  channelId  String
-  authorId   String
-  content    String
-  messageId  String      @unique
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime
-  type       MessageType @default(QUESTION)
-  categories String[]
-  resolved   Boolean     @default(false)
-  solution   String?
-  Column     Column      @relation(fields: [channelId], references: [channelId])
+model Server {
+  id        String    @id
+  name      String
+  channels  Channel[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Channel {
+  id        String    @id
+  serverId   String
+  server     Server     @relation(fields: [serverId], references: [id])
+  name      String
+  columns   Column[]
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Column {
-  id        String      @id
-  channelId String      @unique
+  id        String      @id @default(cuid())
+  channelId String
+  channel   Channel     @relation(fields: [channelId], references: [id])
   title     String
   type      MessageType @default(QUESTION)
+  messages  Message[]
   createdAt DateTime    @default(now())
-  updatedAt DateTime
-  Message   Message[]
+  updatedAt DateTime    @updatedAt
+}
+
+model Message {
+  id        String      @id
+  channelId String
+  channel   Channel     @relation(fields: [channelId], references: [id])
+  columnId  String
+  column    Column      @relation(fields: [columnId], references: [id])
+  authorId  String
+  content   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  type      MessageType @default(QUESTION)
+  categories String[]
+  resolved  Boolean     @default(false)
+  solution  String?
+  reactions Reaction[]
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id])
+  emoji     String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([messageId, emoji, userId])
+}
+
+model User {
+  id         String   @id
+  username   String
+  globalName String?
+  avatar     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 enum MessageType {
@@ -37,3 +83,4 @@ enum MessageType {
   FEEDBACK
   FEATURE_REQUEST
 }
+

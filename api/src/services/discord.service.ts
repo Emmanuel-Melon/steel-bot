@@ -6,17 +6,22 @@ import {
   PartialMessageReaction,
   PartialUser,
   MessageReactionEventDetails,
+  GuildChannel,
+  TextChannel,
 } from "discord.js";
 import { MessageService } from "./message.service";
 import { createGitHubIssue } from "../lib/github";
+import { prisma } from "../lib/prisma";
+import { Server, Channel } from "@prisma/client";
+import{ discord} from "../index";
+
+const messageService = new MessageService();
+
 
 export class DiscordService {
-  private client: Client;
-  private messageService: MessageService;
 
-  constructor(client: Client) {
-    this.client = client;
-    this.messageService = new MessageService();
+  constructor() {
+
   }
 
   async handleReady() {
@@ -25,16 +30,11 @@ export class DiscordService {
 
   async handleMessageCreate(message: Message) {
     try {
-      console.log("handling message", message);
-      const savedMessage = await this.messageService.saveMessage(message);
+      const savedMessage = await messageService.saveMessage(message);
       console.info({
         event: "message_logged",
         messageId: savedMessage?.id,
-        channel: message.channel.id,
-        author: message.author.tag,
-        content:
-          message.content.substring(0, 50) +
-          (message.content.length > 50 ? "..." : ""),
+        channel: message.channel.id
       });
     } catch (error) {
       console.error("Failed to save message:", error);
@@ -61,7 +61,7 @@ export class DiscordService {
         return;
       }
 
-      const dbMessage = await this.messageService.getReactedForMessage(
+      const dbMessage = await messageService.getReactedForMessage(
         reaction.message.id,
       );
 
@@ -92,10 +92,85 @@ export class DiscordService {
     }
   }
 
+  async getChannels(guildId: string): Promise<TextChannel[]> {
+    try {
+      const guild = await discord.guilds.fetch(guildId);
+      const channels = await guild.channels.fetch();
+      
+      return channels
+        .filter((channel): channel is TextChannel => 
+          channel !== null && channel.type === 0
+        )
+        .map(channel => ({
+          id: channel.id,
+          name: channel.name,
+          type: channel.type,
+          position: channel.position,
+        })) as TextChannel[];
+    } catch (error) {
+      console.error("Failed to fetch channels:", error);
+      throw error;
+    }
+  }
+
+  async addServer(guildId: string): Promise<Server> {
+    try {
+      const guild = await discord.guilds.fetch(guildId);
+      return await prisma.server.create({
+        data: {
+          id: guildId,
+          name: guild.name,
+        }
+      })
+    } catch (error) {
+      console.error("Failed to add server:", error);
+      throw error;
+    }
+  }
+
+  async addChannel(serverId: string, channelId: string): Promise<Channel> {
+    try {
+      const guild = await discord.guilds.fetch(serverId);
+      const channel = await guild.channels.fetch(channelId);
+      
+      if (!channel || channel.type !== 0) {
+        throw new Error("Invalid channel or not a text channel");
+      }
+
+      return await prisma.channel.upsert({
+        where: { id: channelId },
+        update: { 
+          name: channel.name,
+          serverId: serverId
+        },
+        create: {
+          id: channelId,
+          name: channel.name,
+          serverId: serverId
+        },
+      });
+    } catch (error) {
+      console.error("Failed to add channel:", error);
+      throw error;
+    }
+  }
+
+  async addMultipleChannels(serverId: string, channelIds: string[]): Promise<Channel[]> {
+    try {
+      const results = await Promise.all(
+        channelIds.map(channelId => this.addChannel(serverId, channelId))
+      );
+      return results;
+    } catch (error) {
+      console.error("Failed to add multiple channels:", error);
+      throw error;
+    }
+  }
+
   initialize() {
-    this.client.on("ready", this.handleReady.bind(this));
-    this.client.on("messageCreate", this.handleMessageCreate.bind(this));
-    this.client.on(
+    discord.on("ready", this.handleReady.bind(this));
+    discord.on("messageCreate", this.handleMessageCreate.bind(this));
+    discord.on(
       "messageReactionAdd",
       this.handleMessageReactionAdd.bind(this),
     );

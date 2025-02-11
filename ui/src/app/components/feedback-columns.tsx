@@ -1,10 +1,14 @@
 import { FeedbackCard } from "./feedback-card"
 import { FeedbackSkeleton } from "./feedback-skeleton"
-import { Column } from "@prisma/client"
+import { Column, Message } from "@prisma/client"
 import { Plus } from "lucide-react"
 
 interface FeedbackColumnsProps {
-  columns: Column[];
+  columns: Column & {
+    id: string;
+    title: string;
+    type: string; messages: Message[]
+  }[];
   isLoading?: boolean;
 }
 

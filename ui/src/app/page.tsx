@@ -13,7 +13,7 @@ export default function Page() {
     <div className="min-h-screen bg-[#121212] text-white">
       <main className="p-6">
         <div className="max-w-7xl mx-auto">
-          <FeedbackColumns columns={columns} isLoading={isLoading} />
+          <FeedbackColumns columns={columns ?? []} isLoading={isLoading} />
         </div>
       </main>
     </div>

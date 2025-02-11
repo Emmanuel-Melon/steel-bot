@@ -4,7 +4,7 @@ import { MessageService } from "./services/message.service";
 import { DiscordService } from "./services/discord.service";
 import messagesRoutes from "./modules/messages/router";
 import columnsRoutes from "./modules/columns/columns.router";
-import { createGitHubIssue } from "./lib/github";
+import discordRoutes from "./modules/discord/discord.router";
 import cors from "@fastify/cors";
 
 const server = fastify({ logger: true });
@@ -16,15 +16,15 @@ server.register(cors, {
   credentials: true,
 });
 
-const discord = createDiscordClient();
+export const discord = createDiscordClient();
 const messageService = new MessageService();
-const discordService = new DiscordService(discord);
+export const discordService = new DiscordService();
 
-// Initialize Discord event handlers
 discordService.initialize();
 
 messagesRoutes(server);
 columnsRoutes(server);
+discordRoutes(server);
 
 const start = async () => {
   try {

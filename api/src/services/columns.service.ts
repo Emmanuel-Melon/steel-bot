@@ -1,8 +1,8 @@
 import { prisma } from "../lib/prisma";
-import { MessageType } from "@prisma/client";
+import { MessageType, Column } from "@prisma/client";
 
 export class ColumnService {
-  async getColumns() {
+  async getColumns(): Promise<Column[]> {
     try {
       return await prisma.column.findMany({
         include: {
@@ -17,7 +17,7 @@ export class ColumnService {
     }
   }
 
-  async initializeColumns() {
+  async initializeColumns(): Promise<Column[]> {
     try {
       const columns: { channelId: string; title: string; type: MessageType }[] =
         [

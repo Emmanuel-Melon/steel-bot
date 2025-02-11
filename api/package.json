@@ -11,6 +11,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
+    "prisma:reset": "tsx prisma/reset.ts",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -30,7 +31,7 @@
     "eslint": "^8.0.0",
     "prettier": "^3.3.3",
     "prisma": "^5.0.0",
-    "tsx": "^4.0.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.0.0"
   },
   "keywords": [],

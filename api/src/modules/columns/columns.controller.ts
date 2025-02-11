@@ -1,10 +1,18 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { ColumnService } from "../../services/columns.service";
+import { Column } from "@prisma/client";
+
+interface ColumnResponse {
+  data: Column[];
+}
 
 const columnService = new ColumnService();
 
 export class ColumnController {
-  async getColumns(request: FastifyRequest, reply: FastifyReply) {
+  async getColumns(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<ColumnResponse | FastifyReply> {
     try {
       const columns = await columnService.getColumns();
       return { data: columns };
@@ -14,7 +22,10 @@ export class ColumnController {
     }
   }
 
-  async initializeColumns(request: FastifyRequest, reply: FastifyReply) {
+  async initializeColumns(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<ColumnResponse | FastifyReply> {
     try {
       const columns = await columnService.initializeColumns();
       return { data: columns };
